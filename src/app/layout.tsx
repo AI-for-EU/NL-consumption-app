@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="lg:ml-64">
             {/* Mobile top bar offset + ticker offset */}
             <div className="h-9" /> {/* ticker height */}
-            <main className="min-h-screen pt-16 lg:pt-4 pb-8 px-4 sm:px-6 max-w-5xl mx-auto">
+            <main className="min-h-screen pt-16 lg:pt-4 pb-24 lg:pb-8 px-4 sm:px-6 max-w-5xl mx-auto">
               {children}
             </main>
           </div>

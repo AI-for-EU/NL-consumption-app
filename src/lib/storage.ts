@@ -1,7 +1,8 @@
-import { PriceAlert, UserBudget, UserProfile } from '@/types'
+import { LoyaltyCard, PriceAlert, UserBudget, UserProfile, LifestyleBudget } from '@/types'
 
 const PROFILE_KEY = 'nl_budget_profile'
 const ALERTS_KEY = 'nl_budget_alerts'
+const LOYALTY_KEY = 'nl_loyalty_cards'
 
 export const DEFAULT_BUDGET: UserBudget = {
   dairy: 40,
@@ -17,11 +18,26 @@ export const DEFAULT_BUDGET: UserBudget = {
   clothing: 50,
 }
 
+export const DEFAULT_LIFESTYLE_BUDGET: LifestyleBudget = {
+  rent_housing: 900,
+  eating_out: 100,
+  travel_transport: 80,
+  utilities: 150,
+  entertainment: 50,
+  healthcare: 30,
+  subscriptions: 40,
+  shopping_fashion: 80,
+  education: 0,
+  savings_goal: 200,
+}
+
 export const DEFAULT_PROFILE: UserProfile = {
   name: '',
   city: '',
   location: null,
   budget: DEFAULT_BUDGET,
+  lifestyleBudget: DEFAULT_LIFESTYLE_BUDGET,
+  loyaltyCards: [],
   householdSize: 2,
   dietaryPreferences: [],
   setupComplete: false,
@@ -32,7 +48,13 @@ export function loadProfile(): UserProfile {
   try {
     const raw = localStorage.getItem(PROFILE_KEY)
     if (!raw) return DEFAULT_PROFILE
-    return { ...DEFAULT_PROFILE, ...JSON.parse(raw) }
+    const parsed = JSON.parse(raw)
+    return {
+      ...DEFAULT_PROFILE,
+      ...parsed,
+      lifestyleBudget: { ...DEFAULT_LIFESTYLE_BUDGET, ...(parsed.lifestyleBudget ?? {}) },
+      loyaltyCards: parsed.loyaltyCards ?? [],
+    }
   } catch {
     return DEFAULT_PROFILE
   }
@@ -56,9 +78,7 @@ export function loadAlerts(): PriceAlert[] {
 
 export function saveAlerts(alerts: PriceAlert[]): void {
   if (typeof window === 'undefined') return
-  // Keep last 50 alerts
-  const trimmed = alerts.slice(-50)
-  localStorage.setItem(ALERTS_KEY, JSON.stringify(trimmed))
+  localStorage.setItem(ALERTS_KEY, JSON.stringify(alerts.slice(-50)))
 }
 
 export function addAlerts(newAlerts: PriceAlert[]): PriceAlert[] {
@@ -70,11 +90,24 @@ export function addAlerts(newAlerts: PriceAlert[]): PriceAlert[] {
 
 export function markAlertRead(id: string): void {
   const alerts = loadAlerts()
-  const updated = alerts.map((a) => (a.id === id ? { ...a, read: true } : a))
-  saveAlerts(updated)
+  saveAlerts(alerts.map((a) => (a.id === id ? { ...a, read: true } : a)))
 }
 
 export function markAllRead(): void {
-  const alerts = loadAlerts()
-  saveAlerts(alerts.map((a) => ({ ...a, read: true })))
+  saveAlerts(loadAlerts().map((a) => ({ ...a, read: true })))
+}
+
+export function loadLoyaltyCards(): LoyaltyCard[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(LOYALTY_KEY)
+    return raw ? (JSON.parse(raw) as LoyaltyCard[]) : []
+  } catch {
+    return []
+  }
+}
+
+export function saveLoyaltyCards(cards: LoyaltyCard[]): void {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(LOYALTY_KEY, JSON.stringify(cards))
 }

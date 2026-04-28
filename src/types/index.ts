@@ -83,11 +83,54 @@ export interface UserBudget {
   clothing: number
 }
 
+export interface LifestyleBudget {
+  rent_housing: number
+  eating_out: number
+  travel_transport: number
+  utilities: number
+  entertainment: number
+  healthcare: number
+  subscriptions: number
+  shopping_fashion: number
+  education: number
+  savings_goal: number
+}
+
+export interface LoyaltyProgram {
+  id: string
+  name: string
+  storeName: string
+  color: string
+  bgColor: string
+  textColor: string
+  emoji: string
+  cardColor: string
+  description: string
+  website: string
+  appAvailable: boolean
+  pointsLabel: string
+  euroPer100Points: number
+}
+
+export interface LoyaltyCard {
+  id: string
+  programId: string
+  nickname: string
+  cardNumber: string
+  points: number
+  stampsCollected?: number
+  stampsRequired?: number
+  connected: boolean
+  lastSynced: string
+}
+
 export interface UserProfile {
   name: string
   city: string
   location: GeoLocation | null
   budget: UserBudget
+  lifestyleBudget: LifestyleBudget
+  loyaltyCards: LoyaltyCard[]
   householdSize: number
   dietaryPreferences: string[]
   setupComplete: boolean

@@ -2,7 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { PriceAlert, RecommendationPlan, TickerItem, UserProfile } from '@/types'
-import { addAlerts, DEFAULT_PROFILE, loadAlerts, loadProfile, markAlertRead, markAllRead, saveProfile } from '@/lib/storage'
+import { addAlerts, DEFAULT_LIFESTYLE_BUDGET, DEFAULT_PROFILE, loadAlerts, loadProfile, markAlertRead, markAllRead, saveProfile } from '@/lib/storage'
 import { buildTickerItems, simulatePriceUpdate } from '@/lib/price-tracker'
 import { generateRecommendations } from '@/lib/recommendation-engine'
 
@@ -31,6 +31,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = loadProfile()
+    // Ensure new fields have defaults for existing users
+    if (!saved.lifestyleBudget) saved.lifestyleBudget = DEFAULT_LIFESTYLE_BUDGET
+    if (!saved.loyaltyCards) saved.loyaltyCards = []
     setProfile(saved)
     setAlerts(loadAlerts())
     setTickerItems(buildTickerItems())
