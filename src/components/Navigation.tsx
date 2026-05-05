@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bell, BarChart2, ShoppingCart, Home, GitCompare, MapPin, Search, CreditCard } from 'lucide-react'
+import { Bell, BarChart2, ShoppingCart, Home, GitCompare, MapPin, Search, CreditCard, LogIn, LogOut, User } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
+import { useAuth } from '@/context/AuthContext'
 
 const SIDEBAR_ITEMS = [
   { href: '/', label: 'Dashboard', icon: Home },
@@ -26,6 +27,9 @@ const BOTTOM_NAV = [
 export default function Navigation() {
   const pathname = usePathname()
   const { unreadCount } = useApp()
+  const { user, authState, signOut } = useAuth()
+  const displayName = user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? user?.phone ?? 'Account'
+  const avatarLetter = displayName?.[0]?.toUpperCase() ?? 'A'
 
   return (
     <>
@@ -64,12 +68,29 @@ export default function Navigation() {
           })}
         </nav>
 
-        <div className="px-4 py-4 border-t border-gray-100">
+        <div className="px-4 py-4 border-t border-gray-100 space-y-3">
+          {/* User info / login */}
+          {authState === 'authenticated' && user ? (
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                {avatarLetter}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-gray-700 truncate">{displayName}</p>
+                <button onClick={signOut} className="text-xs text-gray-400 hover:text-red-500 flex items-center gap-1 transition">
+                  <LogOut size={10} /> Sign out
+                </button>
+              </div>
+            </div>
+          ) : authState === 'unauthenticated' ? (
+            <Link href="/login" className="flex items-center gap-2 text-sm font-medium text-orange-500 hover:text-orange-600 transition">
+              <LogIn size={16} /> Sign in for sync
+            </Link>
+          ) : null}
           <div className="flex items-center gap-2 text-xs text-gray-400">
             <MapPin size={12} />
-            <span>Netherlands 🇳🇱</span>
+            <span>Netherlands 🇳🇱 · Updates every 30s</span>
           </div>
-          <p className="text-xs text-gray-400 mt-1">Prices update every 30s</p>
         </div>
       </aside>
 

@@ -4,6 +4,7 @@ import './globals.css'
 import Navigation from '@/components/Navigation'
 import PriceTicker from '@/components/PriceTicker'
 import { AppProvider } from '@/context/AppContext'
+import { AuthProvider } from '@/context/AuthContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,23 +18,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="nl">
       <body className={inter.className}>
-        <AppProvider>
-          {/* Price ticker at the very top */}
-          <div className="fixed top-0 left-0 right-0 z-50">
-            <PriceTicker />
-          </div>
+        <AuthProvider>
+          <AppProvider>
+            {/* Price ticker at the very top */}
+            <div className="fixed top-0 left-0 right-0 z-50">
+              <PriceTicker />
+            </div>
 
-          <Navigation />
+            <Navigation />
 
-          {/* Main content area */}
-          <div className="lg:ml-64">
-            {/* Mobile top bar offset + ticker offset */}
-            <div className="h-9" /> {/* ticker height */}
-            <main className="min-h-screen pt-16 lg:pt-4 pb-24 lg:pb-8 px-4 sm:px-6 max-w-5xl mx-auto">
-              {children}
-            </main>
-          </div>
-        </AppProvider>
+            <div className="lg:ml-64">
+              <div className="h-9" />
+              <main className="min-h-screen pt-16 lg:pt-4 pb-24 lg:pb-8 px-4 sm:px-6 max-w-5xl mx-auto">
+                {children}
+              </main>
+            </div>
+          </AppProvider>
+        </AuthProvider>
       </body>
     </html>
   )
