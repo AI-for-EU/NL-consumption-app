@@ -2,25 +2,31 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bell, BarChart2, ShoppingCart, Home, GitCompare, MapPin, Search, CreditCard, LogIn, LogOut, User } from 'lucide-react'
+import {
+  Bell, BarChart2, ShoppingCart, Home, GitCompare,
+  MapPin, Search, CreditCard, LogIn, LogOut, Users, ShoppingBasket
+} from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { useAuth } from '@/context/AuthContext'
 
 const SIDEBAR_ITEMS = [
-  { href: '/', label: 'Dashboard', icon: Home },
-  { href: '/budget', label: 'My Budget', icon: BarChart2 },
-  { href: '/compare', label: 'Price Compare', icon: GitCompare },
-  { href: '/search', label: 'Search Products', icon: Search },
-  { href: '/recommendations', label: 'Shopping Plan', icon: ShoppingCart },
-  { href: '/loyalty', label: 'Loyalty Cards', icon: CreditCard },
-  { href: '/alerts', label: 'Alerts', icon: Bell, badge: true },
+  { href: '/',               label: 'Dashboard',      icon: Home },
+  { href: '/basket',         label: 'Smart Basket',   icon: ShoppingBasket },
+  { href: '/family',         label: 'Family Basket',  icon: Users },
+  { href: '/budget',         label: 'My Budget',      icon: BarChart2 },
+  { href: '/compare',        label: 'Price Compare',  icon: GitCompare },
+  { href: '/search',         label: 'Search Products',icon: Search },
+  { href: '/recommendations',label: 'Shopping Plan',  icon: ShoppingCart },
+  { href: '/loyalty',        label: 'Loyalty Cards',  icon: CreditCard },
+  { href: '/alerts',         label: 'Alerts',         icon: Bell, badge: true },
 ]
 
+// Bottom nav — 5 most-used on mobile
 const BOTTOM_NAV = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/search', label: 'Search', icon: Search },
-  { href: '/recommendations', label: 'Plan', icon: ShoppingCart },
-  { href: '/loyalty', label: 'Cards', icon: CreditCard },
+  { href: '/',       label: 'Home',   icon: Home },
+  { href: '/basket', label: 'Basket', icon: ShoppingBasket },
+  // centre slot is the Voice FAB (rendered in layout) — skip it
+  { href: '/family', label: 'Family', icon: Users },
   { href: '/alerts', label: 'Alerts', icon: Bell, badge: true },
 ]
 
@@ -28,12 +34,13 @@ export default function Navigation() {
   const pathname = usePathname()
   const { unreadCount } = useApp()
   const { user, authState, signOut } = useAuth()
-  const displayName = user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? user?.phone ?? 'Account'
+  const displayName =
+    user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? user?.phone ?? 'Account'
   const avatarLetter = displayName?.[0]?.toUpperCase() ?? 'A'
 
   return (
     <>
-      {/* ── Desktop sidebar ─────────────────────────────────── */}
+      {/* ── Desktop sidebar ─────────────────────────────── */}
       <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-white border-r border-gray-100 shadow-sm fixed left-0 top-0 z-30">
         <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
           <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow">
@@ -45,7 +52,7 @@ export default function Navigation() {
           </div>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {SIDEBAR_ITEMS.map(({ href, label, icon: Icon, badge }) => {
             const active = pathname === href
             return (
@@ -69,7 +76,6 @@ export default function Navigation() {
         </nav>
 
         <div className="px-4 py-4 border-t border-gray-100 space-y-3">
-          {/* User info / login */}
           {authState === 'authenticated' && user ? (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
@@ -94,56 +100,79 @@ export default function Navigation() {
         </div>
       </aside>
 
-      {/* ── Mobile top bar ──────────────────────────────────── */}
+      {/* ── Mobile top bar ──────────────────────────────── */}
       <header className="lg:hidden fixed top-9 left-0 right-0 z-30 bg-white border-b border-gray-100 shadow-sm">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="text-xl">🛒</span>
             <span className="font-bold text-gray-900 text-sm">BudgetBoodschappen</span>
           </div>
-          <Link href="/alerts" className="relative">
-            <Bell size={20} className="text-gray-600" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
+          <div className="flex items-center gap-3">
+            {authState === 'authenticated' && user ? (
+              <div className="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-xs">
+                {avatarLetter}
+              </div>
+            ) : (
+              <Link href="/login" className="text-xs text-orange-500 font-medium">Sign in</Link>
             )}
-          </Link>
+            <Link href="/alerts" className="relative">
+              <Bell size={20} className="text-gray-600" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* ── Mobile bottom navigation bar ────────────────────── */}
+      {/* ── Mobile bottom nav (4 tabs + centre FAB slot) ── */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-2px_12px_rgba(0,0,0,0.08)]">
         <div className="flex items-stretch">
-          {BOTTOM_NAV.map(({ href, label, icon: Icon, badge }) => {
-            const active = pathname === href
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 min-h-[56px] transition-colors relative ${
-                  active ? 'text-orange-500' : 'text-gray-400'
-                }`}
-              >
-                <div className="relative">
-                  <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
-                  {badge && unreadCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </div>
-                <span className={`text-[10px] font-medium leading-none ${active ? 'text-orange-500' : 'text-gray-400'}`}>
-                  {label}
-                </span>
-                {active && (
-                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-orange-500 rounded-full" />
-                )}
-              </Link>
-            )
-          })}
+          {/* Left 2 tabs */}
+          {BOTTOM_NAV.slice(0, 2).map(({ href, label, icon: Icon }) => (
+            <NavTab key={href} href={href} label={label} icon={<Icon size={22} strokeWidth={pathname === href ? 2.5 : 1.8} />} active={pathname === href} />
+          ))}
+
+          {/* Centre slot — Voice FAB sits here (rendered in layout.tsx) */}
+          <div className="flex-1" />
+
+          {/* Right 2 tabs */}
+          {BOTTOM_NAV.slice(2).map(({ href, label, icon: Icon, badge }) => (
+            <NavTab
+              key={href}
+              href={href}
+              label={label}
+              icon={<Icon size={22} strokeWidth={pathname === href ? 2.5 : 1.8} />}
+              active={pathname === href}
+              badge={badge ? unreadCount : 0}
+            />
+          ))}
         </div>
       </nav>
     </>
+  )
+}
+
+function NavTab({ href, label, icon, active, badge = 0 }: {
+  href: string; label: string; icon: React.ReactNode; active: boolean; badge?: number
+}) {
+  return (
+    <Link
+      href={href}
+      className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 min-h-[56px] relative transition-colors ${active ? 'text-orange-500' : 'text-gray-400'}`}
+    >
+      <div className="relative">
+        {icon}
+        {badge > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
+            {badge > 9 ? '9+' : badge}
+          </span>
+        )}
+      </div>
+      <span className={`text-[10px] font-medium leading-none ${active ? 'text-orange-500' : 'text-gray-400'}`}>{label}</span>
+      {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-orange-500 rounded-full" />}
+    </Link>
   )
 }

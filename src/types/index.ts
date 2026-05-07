@@ -174,6 +174,95 @@ export interface PriceAlert {
   read: boolean
 }
 
+// ── Basket & Shopping List ───────────────────────────────────────────
+export interface BasketItem {
+  id: string
+  name: string
+  quantity: number
+  unit: string
+  productId?: string       // matched product from our catalog
+  addedBy: string          // member name or 'You'
+  addedAt: string
+  bought: boolean
+  boughtBy?: string
+  boughtAt?: string
+  note?: string
+  estimatedPrice?: number  // from matched product
+  bestStoreId?: string
+}
+
+export interface StoreBasket {
+  supermarketId: string
+  supermarket: Supermarket
+  items: BasketItem[]
+  matchedProducts: { item: BasketItem; price: number }[]
+  estimatedTotal: number
+  savings: number
+}
+
+export interface BasketOptimization {
+  singleStoreBest: StoreBasket
+  splitStores: StoreBasket[]        // 2-store optimal split
+  theoreticalMin: number            // cheapest item per store, no travel
+  totalItems: number
+  unmatchedItems: string[]
+  generatedAt: string
+}
+
+export interface ShoppingBasket {
+  id: string
+  name: string
+  items: BasketItem[]
+  familyCode?: string
+  optimization?: BasketOptimization
+  createdAt: string
+  updatedAt: string
+  completedAt?: string
+}
+
+// ── Consumption Tracking ─────────────────────────────────────────────
+export interface PurchaseRecord {
+  id: string
+  productId: string
+  productName: string
+  productEmoji: string
+  quantity: number
+  pricePerUnit: number
+  supermarketId: string
+  purchasedAt: string
+}
+
+export interface ConsumptionPattern {
+  productId: string
+  productName: string
+  productEmoji: string
+  averageDaysBetweenPurchases: number
+  lastPurchasedAt: string
+  lastPrice: number
+  lastSupermarketId: string
+  estimatedNextPurchase: string
+  averageQuantityPerTrip: number
+  urgency: 'overdue' | 'due-soon' | 'ok'
+}
+
+// ── Family Sharing ───────────────────────────────────────────────────
+export interface FamilyMember {
+  id: string
+  name: string
+  emoji: string
+  isOwner: boolean
+  joinedAt: string
+  deviceId: string
+}
+
+export interface FamilyRoom {
+  code: string
+  ownerName: string
+  members: FamilyMember[]
+  basket: ShoppingBasket
+  updatedAt: string
+}
+
 export interface TickerItem {
   id: string
   supermarketShort: string
